@@ -1,14 +1,16 @@
 import { useEffect, useState, useRef } from "react";
 import API from "../util/API";
-// import socketClient from "socket.io-client";
 import { io } from "socket.io-client";
 import { useImmer } from "use-immer";
 const SERVER = "http://localhost:3000";
 
 function Gallery() {
+  const [conversations, setConverastions] = useState([]);
+  const [friends, setFriends] = useState([]);
   const [chat, setChat] = useImmer([]);
   const textEl = useRef(null);
   const usernameEl = useRef(null);
+  const friendsEl = useRef(null);
   // var socket = socketClient(SERVER, {
   //   autoConnect: false
   // });
@@ -37,6 +39,10 @@ function Gallery() {
     })
   }
 
+  const onAddFriend = () => {
+    
+  }
+
   useEffect(() => {
     onPageLoad();
     return () => socket.disconnect();
@@ -54,17 +60,23 @@ function Gallery() {
   }, [])
 
   return (
+    
+    
     <div className="container-fluid portfolio-bg" style={{ marginTop: "50px" }}>
-      <input type="text" ref={usernameEl}></input>
-      <input type="text" ref={textEl}></input>
-      <button onClick={() => onMessage()}>Submit Text</button>
+      <input type="text" ref={friendsEl}></input>
+      <button onClick={()=> onAddFriend()}>Add friend</button>
+
+
+
       {chat.map((chatBlock) => (
         <div>
           <div>{chatBlock.username}</div>
           <div>{chatBlock.message}</div>
-
         </div>
       ))}
+      <input type="text" ref={usernameEl}></input>
+      <input type="text" ref={textEl}></input>
+      <button onClick={() => onMessage()}>Submit Text</button>
     </div>
   );
 }

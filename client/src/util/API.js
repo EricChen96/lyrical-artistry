@@ -44,6 +44,12 @@ const API = {
   deletePicture: (imageID) => {
     return axios.delete(`/api/user/images/${imageID}`);
   },
+  addFriends: (friendID) => {
+    return axios.post(`/api/user/friends/${friendID}`)
+  },
+  updateConversations: (conversation) => {
+    return axios.put(`/api/user/conversation`, conversation);
+  }
 };
 
 export default API;

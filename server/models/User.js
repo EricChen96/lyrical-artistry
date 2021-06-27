@@ -17,15 +17,9 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  // quotes: [Quote]
+  // friends: [{ type: Schema.Types.ObjectId, ref: "User"}],
   quotes: {
     type: [{ type: Schema.Types.ObjectId, ref: "Quote" }],
-    validate: {
-      validator: function () {
-        return this.quotes.length <= 5;
-      },
-      message: `Quotes exceed max size`
-    }
   },
   images: [{ type: Schema.Types.ObjectId, ref: "Image" }],
   profileImage: String,
@@ -44,10 +38,6 @@ const UserSchema = new Schema({
     required: true,
     trim: true
   },
-  
-  // friends/followers: [],
-  
-
 });
 
 // Execute before each user.save() call

@@ -140,5 +140,14 @@ apiRouter.delete("/api/user/images/:imageID", isAuthenticated, (req, res) => {
   })
 });
 
+apiRouter.post("/api/user/friends/:friendID", isAuthenticated, (req,res)=> {
+  db.FriendsList.findOneAndUpdate({ owner: req.user.id }, {friends: req.params.friendID}, {upsert: true, new:true, setDefaultsOnInsert: true});
+})
+// apiRouter.get("/api/user/friends")
+
+
+// apiRouter.put("/api/user/conversation", isAuthenticated, (req,res) => {
+//   db.ConversationRoom.updateOne({"participants": })
+// })
 
 module.exports = apiRouter;
