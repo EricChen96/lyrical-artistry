@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 var conversationRoomSchema = new mongoose.Schema({
     room: {type: String, trim: true},
-	participants: [{type: mongoose.Schema.objectID, required: true, ref: "User"}],
+	participants: [{type: Schema.Types.ObjectId, required: true, ref: "User"}],
     last_message: Number,
 },
 {

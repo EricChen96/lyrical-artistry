@@ -39,8 +39,8 @@ function Gallery() {
     })
   }
 
-  const onAddFriend = () => {
-    
+  const onAddFriend = (friendID) => {
+    API.addFriends(friendID);
   }
 
   useEffect(() => {
@@ -53,19 +53,30 @@ function Gallery() {
       var username = data.username;
       var message = data.message;
       setChat((draft) => {
-        draft.push({username,message})
+        draft.push({ username, message })
         console.log(chat);
       })
     })
   }, [])
 
+  useEffect(() => {
+    API.getFriendsList().then((friendsID) => {
+      console.log(friendsID);
+      setFriends(friendsID);
+    })
+  }, [])
+
   return (
-    
-    
+
+
     <div className="container-fluid portfolio-bg" style={{ marginTop: "50px" }}>
       <input type="text" ref={friendsEl}></input>
-      <button onClick={()=> onAddFriend()}>Add friend</button>
-
+      <button onClick={() => onAddFriend(friendsEl.current.value)}>Add friend</button>
+      {/* {friends.map((friends) => (
+        <div>
+          <div>{friends}</div>
+        </div>
+      ))} */}
 
 
       {chat.map((chatBlock) => (

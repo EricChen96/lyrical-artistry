@@ -47,6 +47,9 @@ const API = {
   addFriends: (friendID) => {
     return axios.post(`/api/user/friends/${friendID}`)
   },
+  getFriendsList: () => {
+    return axios.get("/api/user/friendsList");
+  },
   updateConversations: (conversation) => {
     return axios.put(`/api/user/conversation`, conversation);
   }

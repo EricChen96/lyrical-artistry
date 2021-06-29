@@ -140,8 +140,19 @@ apiRouter.delete("/api/user/images/:imageID", isAuthenticated, (req, res) => {
   })
 });
 
+apiRouter.get("/api/user/friendsList", isAuthenticated, (req,res) => {
+  db.FriendsList.find({ owner: req.user.id }).populate("friends").then(dbFriends => {
+    console.log(dbFriends);
+    res.json(dbFriends[0].friends);
+  }).catch(err => {
+    res.json(err);
+  })
+})
+
 apiRouter.post("/api/user/friends/:friendID", isAuthenticated, (req,res)=> {
-  db.FriendsList.findOneAndUpdate({ owner: req.user.id }, {friends: req.params.friendID}, {upsert: true, new:true, setDefaultsOnInsert: true});
+  db.FriendsList.findOneAndUpdate({ owner: req.user.id }, {friends: req.params.friendID}, {upsert: true, new:true, setDefaultsOnInsert: true}).then(()=> {
+    console.log("it works");
+  });
 })
 // apiRouter.get("/api/user/friends")
 
