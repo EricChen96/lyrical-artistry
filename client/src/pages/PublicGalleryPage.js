@@ -61,8 +61,8 @@ function Gallery() {
 
   useEffect(() => {
     API.getFriendsList().then((friendsID) => {
-      console.log(friendsID);
-      setFriends(friendsID);
+      console.log(friendsID.data);
+      setFriends(friendsID.data);
     })
   }, [])
 
@@ -72,11 +72,11 @@ function Gallery() {
     <div className="container-fluid portfolio-bg" style={{ marginTop: "50px" }}>
       <input type="text" ref={friendsEl}></input>
       <button onClick={() => onAddFriend(friendsEl.current.value)}>Add friend</button>
-      {/* {friends.map((friends) => (
+      {friends.map((user) => (
         <div>
-          <div>{friends}</div>
+          <div>{user.username}</div>
         </div>
-      ))} */}
+      ))}
 
 
       {chat.map((chatBlock) => (

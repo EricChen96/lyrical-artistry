@@ -2,6 +2,6 @@ module.exports = {
   User: require("./User"),
   Quote: require("./Quote"),
   Image: require("./Image"),
-  ConversationRoom: require("./ConversationRoom"),
+  ChatRoom: require("./ChatRoom"),
   FriendsList: require("./FriendsList")
 };
