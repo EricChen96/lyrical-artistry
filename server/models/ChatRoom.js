@@ -3,7 +3,6 @@ const Schema = mongoose.Schema;
 
 var chatRoomSchema = new mongoose.Schema(
     {
-        room: { type: String, trim: true },
         participants: [{ type: Schema.Types.ObjectId, required: true, ref: "User" }],
         last_message: Number,
     },

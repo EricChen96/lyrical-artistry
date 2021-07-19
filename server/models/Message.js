@@ -1,5 +1,6 @@
-import mongoose from "mongoose";
-import { v4 as uuidv4 } from "uuid";
+var mongoose = require('mongoose');
+// import { v4 as uuidv4 } from "uuid";
+const { v4 } = require("uuid");
 
 const readByRecipientSchema = new mongoose.Schema(
     {
@@ -19,7 +20,7 @@ const messageSchema = new mongoose.Schema(
     {
         _id: {
             type: String,
-            default: () => uuidv4().replace(/\-/g, ""),
+            default: () => v4().replace(/\-/g, ""),
         },
         chatRoomId: String,
         message: mongoose.Schema.Types.Mixed,
@@ -32,7 +33,7 @@ const messageSchema = new mongoose.Schema(
     }
 )
 
-chatMessageSchema.statics.createPostInChatRoom = async function (chatRoomId, message, postedByUser) {
+messageSchema.statics.createPostInChatRoom = async function (chatRoomId, message, postedByUser) {
     try {
         const post = await this.create({
             chatRoomId,

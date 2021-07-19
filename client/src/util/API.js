@@ -52,6 +52,12 @@ const API = {
   },
   updateConversations: (conversation) => {
     return axios.put(`/api/user/conversation`, conversation);
+  },
+  postChatRoom: (chatRoomData) => {
+    return axios.post("/api/user/chatRoom", chatRoomData);
+  },
+  postMessage: (chatRoom) => {
+    return axios.post("/api/user/:roomID/message", chatRoom.postMessage);
   }
 };
 
