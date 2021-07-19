@@ -22,7 +22,7 @@ function App() {
     <ProvideAuth>
       <Router>
         <div>
-          <Route path={["/canvasPage", "/profile", "/gallery"]}>
+          <Route path={["/canvasPage", "/profile", "/gallery", "/publicGallery"]}>
             <Navbar />
           </Route>
 

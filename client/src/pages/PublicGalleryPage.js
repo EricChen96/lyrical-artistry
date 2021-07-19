@@ -1,63 +1,93 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import API from "../util/API";
+import { io } from "socket.io-client";
+import { useImmer } from "use-immer";
+const SERVER = "http://localhost:3000";
 
 function Gallery() {
-  const [userImages, setUserImages] = useState([]);
-  const [imageModalShow, showLargeImageModal] = useState(false);
-  const [imageModalURL, setImageModalURL] = useState("");
+  const [conversations, setConverastions] = useState([]);
+  const [friends, setFriends] = useState([]);
+  const [chat, setChat] = useImmer([]);
+  const textEl = useRef(null);
+  const usernameEl = useRef(null);
+  const friendsEl = useRef(null);
+  // var socket = socketClient(SERVER, {
+  //   autoConnect: false
+  // });
 
-  // const ws = new WebSocket("ws://localhost:8000");
+  const socket = io(SERVER, {
+    autoConnect: false
+  })
+  // const socket = io.connect(SERVER);
 
-  // const HOST = window.location.origin.replace(/^http/, 'ws');
-  // const ws = new WebSocket(HOST);
-  
-  // const sendButton = () => {
-  //   ws.send(JSON.stringify({
-  //       "message" : "hi"
-  //   }))
-  // }
+  const onMessage = () => {
+    var username = usernameEl.current.value;
+    var message = textEl.current.value;
+    socket.emit("private_chat", {
+      to: username,
+      message: message
+    })
+  }
 
-  // useEffect(() => {
 
-  //   ws.onopen = () => {
-  //     console.log(`Opened Connection!`)
-  //   };
 
-  //   ws.onmessage = (event) => {
-  //     console.log(JSON.parse(event.data));
-  //     // setImageModalURL(JSON.parse(event.data));
-  //   }
+  const onPageLoad = () => {
+    API.getUser().then((res) => {
+      const username = res.data.username;
+      socket.emit("register", username);
+      socket.connect();
+    })
+  }
 
-  //   ws.onclose = () => {
-  //     console.log(`Closed Connection!`)
-  //   };
-  // }, []);
+  const onAddFriend = (friendID) => {
+    API.addFriends(friendID);
+  }
 
-  // useEffect(() => {
-  //   API.getAllUserImages().then((res) => {
-  //     setUserImages(res.data.map(image => {
-  //       return {
-  //         id: image._id,
-  //         image: image.imageS3Url
-  //       }
-  //     }));
-  //   })
-  // }, [userImages])
+  useEffect(() => {
+    onPageLoad();
+    return () => socket.disconnect();
+  }, [])
 
-  // //   const showImageModal = (imageURL) => {
-  // //     handleModalOpen();
-  // //     setImageModalURL(imageURL);
-  // //   }
+  useEffect(() => {
+    socket.on("private_chat", function (data) {
+      var username = data.username;
+      var message = data.message;
+      setChat((draft) => {
+        draft.push({ username, message })
+        console.log(chat);
+      })
+    })
+  }, [])
 
-  // //   const handleModalClose = () => showLargeImageModal(false);
-  // //   const handleModalOpen = () => showLargeImageModal(true);
+  useEffect(() => {
+    API.getFriendsList().then((friendsID) => {
+      console.log(friendsID.data);
+      setFriends(friendsID.data);
+    })
+  }, [])
 
   return (
-    <div className="container-fluid portfolio-bg" style={{ marginTop: "50px" }}>
-      <div className="row mx-auto">
-        {/* <button onClick={sendButton}>Click Me</button> */}
 
-      </div>
+
+    <div className="container-fluid portfolio-bg" style={{ marginTop: "50px" }}>
+      <input type="text" ref={friendsEl}></input>
+      <button onClick={() => onAddFriend(friendsEl.current.value)}>Add friend</button>
+      {friends.map((user) => (
+        <div>
+          <div>{user.username}</div>
+        </div>
+      ))}
+
+
+      {chat.map((chatBlock) => (
+        <div>
+          <div>{chatBlock.username}</div>
+          <div>{chatBlock.message}</div>
+        </div>
+      ))}
+      <input type="text" ref={usernameEl}></input>
+      <input type="text" ref={textEl}></input>
+      <button onClick={() => onMessage()}>Submit Text</button>
     </div>
   );
 }

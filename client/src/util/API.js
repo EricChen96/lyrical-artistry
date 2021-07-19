@@ -14,7 +14,6 @@ const API = {
       firstName,
       lastName,
       email
-
     });
   },
 
@@ -22,13 +21,13 @@ const API = {
     return axios.get(`/api/tracks/${trackName}`);
   },
   getLyrics: (trackID) => {
-    return axios.get(`/api/lyrics/${trackID}`)
+    return axios.get(`/api/lyrics/${trackID}`);
   },
   postQuotes: (quoteObject) => {
-    return axios.post(`/api/user/quotes`, quoteObject)
+    return axios.post(`/api/user/quotes`, quoteObject);
   },
   deleteQuote: (quoteID) => {
-    return axios.delete(`/api/user/quotes/${quoteID}`)
+    return axios.delete(`/api/user/quotes/${quoteID}`);
   },
   getAllUserQuotes: () => {
     return axios.get(`/api/user/quotes`);
@@ -39,8 +38,26 @@ const API = {
   getAllUserImages: () => {
     return axios.get("/api/user/images");
   },
+  getAllPublicImages: ()=> {
+    return axios.get("/api/publicImages");
+  },
   deletePicture: (imageID) => {
     return axios.delete(`/api/user/images/${imageID}`);
+  },
+  addFriends: (friendID) => {
+    return axios.post(`/api/user/friends/${friendID}`)
+  },
+  getFriendsList: () => {
+    return axios.get("/api/user/friendsList");
+  },
+  updateConversations: (conversation) => {
+    return axios.put(`/api/user/conversation`, conversation);
+  },
+  postChatRoom: (chatRoomData) => {
+    return axios.post("/api/user/chatRoom", chatRoomData);
+  },
+  postMessage: (chatRoom) => {
+    return axios.post("/api/user/:roomID/message", chatRoom.postMessage);
   }
 };
 

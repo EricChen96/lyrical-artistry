@@ -9,6 +9,7 @@ require("dotenv").config({ path: path.resolve(__dirname, ".env") });
 const multer = require("multer");
 var multerS3 = require('multer-s3');
 const AWS = require("aws-sdk");
+const { ChatRoom } = require("../models");
 const BUCKET_NAME = process.env.AWSBucket;
 const USER_KEY = process.env.AWSAccessKeyId;
 const USER_SECRET = process.env.AWSSecretKey;
@@ -98,6 +99,20 @@ apiRouter.get("/api/user/images", isAuthenticated, (req, res) => {
   })
 })
 
+apiRouter.get("/api/publicImages", isAuthenticated, (req, res) => {
+  db.Image.find({ privacy: "public" }).then(dbImages => {
+    res.json(
+      dbImages.map((imageDoc) => {
+        //Convert mongoose Document class to JS object
+        const image = imageDoc.toObject();
+        return image;
+      })
+    );
+  }).catch(err => {
+    res.json(err);
+  })
+})
+
 var upload = multer({
   storage: multerS3({
     s3: s3,
@@ -129,10 +144,14 @@ apiRouter.delete("/api/user/images/:imageID", isAuthenticated, (req, res) => {
   db.Image.findById({ _id: req.params.imageID }).then(dbModel => {
     console.log(dbModel);
 <<<<<<< HEAD
+<<<<<<< HEAD
     const s3Key = dbModel.imageS3Url.replace("https://lyrical-artistry-s3.s3.amazonaws.com/", "");
 =======
     const s3Key = dbModel.imageS3Url.replace(`https://${BUCKET_NAME}.s3.amazonaws.com/`,"");
 >>>>>>> 42ef3c16fac182c276f85b7196abefe2b27e81ba
+=======
+    const s3Key = dbModel.imageS3Url.replace(`https://${BUCKET_NAME}.s3.amazonaws.com/`, "");
+>>>>>>> 672db133e860bcd7d1c67d05b8ac106fdaacc6c5
     var params = { Bucket: BUCKET_NAME, Key: s3Key };
     s3.deleteObject(params, function (err, data) {
       if (err) console.log(err, err.stack);  // error
@@ -141,6 +160,53 @@ apiRouter.delete("/api/user/images/:imageID", isAuthenticated, (req, res) => {
   }).catch(err => {
     res.json(err);
   })
+});
+
+apiRouter.get("/api/user/friendsList", isAuthenticated, (req, res) => {
+  db.FriendsList.find({ owner: req.user.id }).populate("friends").then(dbFriends => {
+    res.json(dbFriends[0].friends);
+  }).catch(err => {
+    res.json(err);
+  })
+});
+
+//Updating Friend List
+apiRouter.post("/api/user/friends/:friendID", isAuthenticated, (req, res) => {
+  db.FriendsList.findOneAndUpdate({ owner: req.user.id }, { $addToSet: { friends: req.params.friendID } }).then(() => {
+    console.log("it works");
+  });
+});
+
+apiRouter.post("/api/user/chatRoom", isAuthenticated, (req, res) => {
+  const { participants } = req.body;
+  const allUserIds = [...participants];
+  const chatRoom = db.ChatRoom.initiateChat(allUserIds).then((chatRoom) => {
+    res.json({ success: true, chatRoom });
+  }).catch(err => {
+    res.json(err);
+  });
+});
+
+
+apiRouter.post("/api/user/:roomId/message", isAuthenticated, (req, res) => {
+  const { roomId } = req.params.roomId;
+  const validation = makeValidation(types => ({
+    payload: req.body,
+    checks: {
+      messageText: { type: types.string },
+    }
+  }));
+  if (!validation.success) return res.status(400).json({ ...validation });
+
+  const messagePayload = {
+    messageText: req.body.messageText
+  };
+  const currentLoggedUser = req.userId;
+  const post = db.ChatMessage.createPostInChatRoom(roomId, messagePayload, currentLoggedUser).then(() => {
+    global.io.sockets.in(roomId).emit('new message', { message: post });
+    return res.status(200).json({ success: true, post });
+  }).catch(err =>
+    res.json(err));
 });
 
 
