@@ -59,7 +59,7 @@ function CanvasKonva(props) {
   const [successfulSave, setSuccessfulSave] = useState(false);
 
 
-const[privacySettings, setPrivacySettings] = useState("public");
+  const [privacySettings, setPrivacySettings] = useState("public");
 
   // ==================================================================================
   // IGNORE (poss enhancment- scale canvas to image height)
@@ -107,7 +107,7 @@ const[privacySettings, setPrivacySettings] = useState("public");
     const data = new FormData();
     data.append("image", blob, workName);
     data.name = workName;
-    data.privacy= privacySettings;
+    data.privacy = privacySettings;
 
     API.postImage(data).then((results) => {
       showSaveNotification(true);
@@ -284,7 +284,7 @@ const[privacySettings, setPrivacySettings] = useState("public");
   }
 
   return (
-    <div>
+    <div className="canvasKonva">
       <div style={{ overflow: "scroll", overflowX: "hidden", height: "300px", width: "80%", backgroundColor: "white" }}>
         <h2 style={{ fontWeight: '1000', padding: '10px' }}>Select your Quote</h2>
         {quotes.length === 0 &&
@@ -436,20 +436,26 @@ const[privacySettings, setPrivacySettings] = useState("public");
         // submit button is gonna add to list of texts
         >Save Work</button><br />
 
-        <p>Please choose your privacy settings for this piece:</p>
-        <input type="radio" id="public" name="privacy" value="public" onChange={(event) => setPrivacySettings(event.target.value)}/>
-        <label for="public">public</label><br />
-        <input type="radio" id="friends" name="privacy" value="friends" onChange={(event) => setPrivacySettings(event.target.value)}/>
-        <label for="friends">friends</label><br />
-        <input type="radio" id="private" name="privacy" value="private" onChange={(event) => setPrivacySettings(event.target.value)}/>
-        <label for="private">private</label>
+        <div className="privacyRadio">
+          <p>Who can see?</p>
 
-        {/* <InputGroup>
-          <InputGroup.Prepend>
-            <InputGroup.Radio aria-label="Radio button for following text input" />
-          </InputGroup.Prepend>
-          <FormControl aria-label="Text input with radio button" />
-        </InputGroup> */}
+          <label className="container">Public (everyone)
+  <input type="radio" id="public" name="privacy" value="public" onChange={(event) => setPrivacySettings(event.target.value)} />
+            <span className="checkmark"></span>
+          </label>
+
+          <label className="container">Friends
+  <input type="radio" id="friends" name="privacy" value="friends" onChange={(event) => setPrivacySettings(event.target.value)} />
+            <span className="checkmark"></span>
+          </label>
+
+          <label className="container">Private (yourself)
+  <input type="radio" id="private" name="privacy" value="private" onChange={(event) => setPrivacySettings(event.target.value)} />
+            <span className="checkmark"></span>
+          </label>
+
+        </div>
+
 
       </div>
       <div style={{ position: "absolute", right: "5px", bottom: "5px" }}>

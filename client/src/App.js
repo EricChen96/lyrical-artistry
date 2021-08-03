@@ -1,16 +1,23 @@
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import PrivateRoute from "./components/PrivateRoute";
-import LoginPage from "./pages/LoginPage";
-import CanvasPage from "./pages/CanvasPage";
+
 // import PublicPage from "./pages/PublicPage";
-import SignUpPage from "./pages/SignUpPage";
-import UserProfilePage from "./pages/UserProfilePage";
+
 import PublicGallery from "./pages/PublicGalleryPage";
 import { ProvideAuth } from "./util/authContext";
 import Gallery from "./pages/Gallery";
+import LoginPage from "./pages/LoginPage";
+import SignUpPage from "./pages/SignUpPage";
+import CanvasPage from "./pages/CanvasPage";
+import UserProfilePage from "./pages/UserProfilePage";
+import PrivateRoute from "./components/PrivateRoute";
+import Navbar from "./components/Navbar";
+import UserSearch from "./components/UserSearch";
+
+
 
 function App() {
+
+
   return (
     <ProvideAuth>
       <Router>
@@ -18,6 +25,9 @@ function App() {
           <Route path={["/canvasPage", "/profile", "/gallery", "/publicGallery"]}>
             <Navbar />
           </Route>
+
+          <UserSearch />
+
           <Switch>
             <Route exact path="/">
               <LoginPage />
@@ -43,6 +53,9 @@ function App() {
           </Switch>
         </div>
       </Router>
+
+
+
     </ProvideAuth>
   );
 }
