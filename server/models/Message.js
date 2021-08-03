@@ -99,3 +99,54 @@ messageSchema.statics.createPostInChatRoom = async function (chatRoomId, message
         throw error;
     }
 }
+
+messageSchema.statics.getConversationByRoomId = async function (chatRoomId, options = {}) {
+    try {
+        return this.aggregate([
+            { $match: { chatRoomId } },
+            { $sort: { createdAt: -1 } },
+            // do a join on another table called users, and 
+            // get me a user whose _id = postedByUser
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'postedByUser',
+                    foreignField: '_id',
+                    as: 'postedByUser',
+                }
+            },
+            { $unwind: "$postedByUser" },
+            // apply pagination
+            { $skip: options.page * options.limit },
+            { $limit: options.limit },
+            { $sort: { createdAt: 1 } },
+        ]);
+    } catch (error) {
+        throw error;
+    }
+}
+
+messageSchema.statics.markMessageRead = async function (chatRoomId, currentUserOnlineId) {
+    try {
+        return this.updateMany(
+            {
+                chatRoomId,
+                'readByRecipients.readByUserId': { $ne: currentUserOnlineId }
+            },
+            {
+                $addToSet: {
+                    readByRecipients: { readByUserId: currentUserOnlineId }
+                }
+            },
+            {
+                multi: true
+            }
+        );
+    } catch (error) {
+        throw error;
+    }
+}
+
+const Message = mongoose.model("Message", messageSchema);
+
+module.exports = Message;

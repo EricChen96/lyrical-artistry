@@ -57,7 +57,13 @@ const API = {
     return axios.post("/api/user/chatRoom", chatRoomData);
   },
   postMessage: (chatRoom) => {
-    return axios.post("/api/user/:roomID/message", chatRoom.postMessage);
+    return axios.post("/api/user/:roomId/message", chatRoom);
+  },
+  getChatRoom: (chatRoom) => {
+    return axios.get("/api/user/:roomId", chatRoom);
+  },
+  updateMessageMarkRead: () => {
+    return axios.put("/api/user/:roomId/mark-read");
   }
 };
 

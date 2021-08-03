@@ -11,6 +11,7 @@ function Gallery() {
   const textEl = useRef(null);
   const usernameEl = useRef(null);
   const friendsEl = useRef(null);
+  const [chatRoomParticipants, setChatRoomParticipants] = useState([]);
   // var socket = socketClient(SERVER, {
   //   autoConnect: false
   // });
@@ -42,11 +43,31 @@ function Gallery() {
   const onAddFriend = (friendID) => {
     API.addFriends(friendID);
   }
+  
+  const onAddToChatRoom = (participantId) => {
+    let containerParticipants = [...chatRoomParticipants]
+    if(containerParticipants.filter(e => e.id === participantId.id).length <= 0) {
+      containerParticipants.push(participantId);
+    }
+    setChatRoomParticipants(containerParticipants);
+  }
 
+  const createChatRoom = () => {
+    let participants = [];
+    for(let i = 0; i < chatRoomParticipants.length; i++) {
+      participants.push(chatRoomParticipants[i].id);
+    }
+    console.log(participants);
+    API.postChatRoom(participants);
+  }
   useEffect(() => {
     onPageLoad();
     return () => socket.disconnect();
   }, [])
+  
+  useEffect(() => {
+  }, [chatRoomParticipants])
+
 
   useEffect(() => {
     socket.on("private_chat", function (data) {
@@ -66,19 +87,27 @@ function Gallery() {
     })
   }, [])
 
+
   return (
 
 
-    <div className="container-fluid portfolio-bg" style={{ marginTop: "50px" }}>
+    <div className="container-fluid portfolio-bg" style={{ marginTop: "50px", backgroundColor: "white" }}>
       <input type="text" ref={friendsEl}></input>
       <button onClick={() => onAddFriend(friendsEl.current.value)}>Add friend</button>
       {friends.map((user) => (
         <div>
-          <div>{user.username}</div>
+          <div style={{color: "red"}}>{user.username}</div>
+          <button onClick={() => onAddToChatRoom({username: user.username, id: user._id})}>Add Friend To Chat</button>
         </div>
       ))}
-
-
+      <div style={{color:"red"}}>Create New Chatroom</div>
+      <div style={{color:"red"}}>Participants:</div>
+      {chatRoomParticipants.map((participants) => (
+        <div style={{color: "blue"}}>
+          {participants.id}
+        </div>
+      ))}
+      <button onClick={()=> createChatRoom()}>Create ChatRoom</button>
       {chat.map((chatBlock) => (
         <div>
           <div>{chatBlock.username}</div>

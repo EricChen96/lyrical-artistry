@@ -1,23 +1,39 @@
-const WebSocket = require("ws");
+// const WebSocket = require("ws");
 
-const wss = new WebSocket.Server({ port: process.env.PORT || 8000 });
+// const client = new WebSocket.Server({ port: process.env.PORT || 8000 });
 // const wss = new WebSocket.Server({ server: "8000" });
 
-const sleep = (ms) => {
-    return new Promise(resolve => setTimeout(resolve, ms));
+class WebSockets {
+    users = [];
+    connection(client) {
+        client.on("disconnect", () => {
+            this.users = this.users.filter((user) => user.socketId !== client.id);
+        });
+
+        client.on("identity", (userId) => {
+            this.users.push({
+                socketId: client.id,
+                userId: userId,
+            });
+        });
+        client.on("subscribe", (room, otherUserId = "") => {
+            this.subscribeOtherUser(room, otherUserId);
+            cliet.join(room);
+        });
+        client.on("unsubscribe", (room) => {
+            client.leave(room);
+        });
+    }
+
+    subscribeOtherUser(room, otherUserId) {
+        const userSockets = this.users.filter((user) => user.userId === otherUserId);
+        userSockets.map((userInfo) => {
+            const socketConn = global.io.sockets.connected(userInfo.socketId);
+            if (socketConn) {
+                socketConn.join(room);
+            }
+        });
+    }
 }
 
-wss.on(`connection`, async (ws) => {
-    ws.on(`message`, async (message) => {
-        console.log(`${message}`);
-    })
-    // while (true) {
-    data = {
-        "number": Math.random() * 10
-    }
-    //     await sleep(1000);
-    ws.send(JSON.stringify(data));
-    // }
-})
-
-module.exports = wss;
+module.exports = WebSockets;

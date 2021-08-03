@@ -4,5 +4,5 @@ module.exports = {
   Image: require("./Image"),
   ChatRoom: require("./ChatRoom"),
   ChatMessage: require("./Message"),
-  FriendsList: require("./FriendsList")
+  FriendsList: require("./FriendsList"),
 };
