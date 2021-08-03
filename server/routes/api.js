@@ -143,15 +143,7 @@ apiRouter.post("/api/user/files", upload.single("image"), isAuthenticated, (req,
 apiRouter.delete("/api/user/images/:imageID", isAuthenticated, (req, res) => {
   db.Image.findById({ _id: req.params.imageID }).then(dbModel => {
     console.log(dbModel);
-<<<<<<< HEAD
-<<<<<<< HEAD
-    const s3Key = dbModel.imageS3Url.replace("https://lyrical-artistry-s3.s3.amazonaws.com/", "");
-=======
-    const s3Key = dbModel.imageS3Url.replace(`https://${BUCKET_NAME}.s3.amazonaws.com/`,"");
->>>>>>> 42ef3c16fac182c276f85b7196abefe2b27e81ba
-=======
     const s3Key = dbModel.imageS3Url.replace(`https://${BUCKET_NAME}.s3.amazonaws.com/`, "");
->>>>>>> 672db133e860bcd7d1c67d05b8ac106fdaacc6c5
     var params = { Bucket: BUCKET_NAME, Key: s3Key };
     s3.deleteObject(params, function (err, data) {
       if (err) console.log(err, err.stack);  // error
