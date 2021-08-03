@@ -66,6 +66,15 @@ UserSchema.methods.verifyPassword = function (password, cb) {
   });
 };
 
+UserSchema.statics.getUserByIds = async function (ids) {
+  try {
+    const users = await this.find({ _id: { $in: ids } });
+    return users;
+  } catch (error) {
+    throw error;
+  }
+}
+
 const User = mongoose.model("User", UserSchema);
 
 module.exports = User;

@@ -75,45 +75,70 @@ const socketIO = require("socket.io")(httpServer, {
     credentials: true
   }
 });
+// const webSockets = require("./config/websocket.js");
+// socketIO.on("connection", webSockets.connection);
 
-// socketIO.use((socket,next) => {
-//   const username = socket.handshake.auth.username;
-//   if(!username) {
-//     return next(new Error("invalid username"));
-//   }
-//   socket.username = username;
-//   next();
-// })
-var clients = 0;
+// var clients = 0;
 
-var connectedUsers = {};
-
+// var connectedUsers = {};
+var users = [];
 socketIO.on("connection", (socket) => {
-  clients++;
-  console.log("New client connected");
-  console.log(`number of clients ${clients}`);
-  
-  socket.on('register', function(username) {
-    socket.username = username;
-    connectedUsers[username] = socket;
+  socket.on("disconnect", () => {
+    users = users.filter((user) => user.socketId !== socket.id);
   });
 
-  socket.on("private_chat", function(data) {
-    const to = data.to;
-    const message = data.message;
-    if(connectedUsers.hasOwnProperty(to)) {
-      connectedUsers[to].emit("private_chat", {
-        username: socket.username,
-        message: message
-      })
-    }
-  })
-
-  socket.once("disconnect", () => {
-    clients--;
-    console.log("Client disconnected.");
-    console.log(`Number of clients left: ${clients}`);
+  socket.on("identity", (userId) => {
+    users.push({
+      socketId: socket.id,
+      userId: userId,
+    });
   });
-});
+  socket.on("subscribe", (room, otherUserId = "") => {
+    subscribeOtherUser(room, otherUserId);
+    socket.join(room);
+  });
+  socket.on("unsubscribe", (room) => {
+    socket.leave(room);
+  });
+
+  const subscribeOtherUser = (room, otherUserId) => {
+    const userSockets = users.filter((user) => user.userId === otherUserId);
+    userSockets.map((userInfo) => {
+      const socketConn = global.io.sockets.connected(userInfo.socketId);
+      if (socketConn) {
+        socketConn.join(room);
+      }
+    });
+  }
+})
+
+
+// socketIO.on("connection", (socket) => {
+//   clients++;
+//   console.log("New client connected");
+//   console.log(`number of clients ${clients}`);
+
+//   socket.on('register', function(username) {
+//     socket.username = username;
+//     connectedUsers[username] = socket;
+//   });
+
+//   socket.on("private_chat", function(data) {
+//     const to = data.to;
+//     const message = data.message;
+//     if(connectedUsers.hasOwnProperty(to)) {
+//       connectedUsers[to].emit("private_chat", {
+//         username: socket.username,
+//         message: message
+//       })
+//     }
+//   })
+
+//   socket.once("disconnect", () => {
+//     clients--;
+//     console.log("Client disconnected.");
+//     console.log(`Number of clients left: ${clients}`);
+//   });
+// });
 
 httpServer.listen(PORT, () => console.log(`Listening on port ${PORT}`));

@@ -143,15 +143,7 @@ apiRouter.post("/api/user/files", upload.single("image"), isAuthenticated, (req,
 apiRouter.delete("/api/user/images/:imageID", isAuthenticated, (req, res) => {
   db.Image.findById({ _id: req.params.imageID }).then(dbModel => {
     console.log(dbModel);
-<<<<<<< HEAD
-<<<<<<< HEAD
-    const s3Key = dbModel.imageS3Url.replace("https://lyrical-artistry-s3.s3.amazonaws.com/", "");
-=======
-    const s3Key = dbModel.imageS3Url.replace(`https://${BUCKET_NAME}.s3.amazonaws.com/`,"");
->>>>>>> 42ef3c16fac182c276f85b7196abefe2b27e81ba
-=======
     const s3Key = dbModel.imageS3Url.replace(`https://${BUCKET_NAME}.s3.amazonaws.com/`, "");
->>>>>>> 672db133e860bcd7d1c67d05b8ac106fdaacc6c5
     var params = { Bucket: BUCKET_NAME, Key: s3Key };
     s3.deleteObject(params, function (err, data) {
       if (err) console.log(err, err.stack);  // error
@@ -177,10 +169,11 @@ apiRouter.post("/api/user/friends/:friendID", isAuthenticated, (req, res) => {
   });
 });
 
+//Initiate Chatroom
 apiRouter.post("/api/user/chatRoom", isAuthenticated, (req, res) => {
-  const { participants } = req.body;
+  const participants = req.body;
   const allUserIds = [...participants];
-  const chatRoom = db.ChatRoom.initiateChat(allUserIds).then((chatRoom) => {
+  db.ChatRoom.initiateChat(allUserIds).then((chatRoom) => {
     res.json({ success: true, chatRoom });
   }).catch(err => {
     res.json(err);
@@ -189,15 +182,7 @@ apiRouter.post("/api/user/chatRoom", isAuthenticated, (req, res) => {
 
 
 apiRouter.post("/api/user/:roomId/message", isAuthenticated, (req, res) => {
-  const { roomId } = req.params.roomId;
-  const validation = makeValidation(types => ({
-    payload: req.body,
-    checks: {
-      messageText: { type: types.string },
-    }
-  }));
-  if (!validation.success) return res.status(400).json({ ...validation });
-
+  const roomId = req.params.roomId;
   const messagePayload = {
     messageText: req.body.messageText
   };
@@ -209,5 +194,44 @@ apiRouter.post("/api/user/:roomId/message", isAuthenticated, (req, res) => {
     res.json(err));
 });
 
+apiRouter.get("/api/user/:roomId", isAuthenticated, async (req, res) => {
+  const roomId = req.params.roomId;
+  const room = await db.ChatRoom.getChatRoomByRoomId(roomId);
+  if (!room) {
+    return res.status(400).json({
+      success: false,
+      message: "No room exists for this id"
+    });
+  }
+  const users = await db.User.getUserByIds(room.participants);
+  const options = {
+    page: parseInt(req.query.page) || 0,
+    limit: parseInt(req.query.limit) || 10,
+  };
+  const conversation = await db.Message.getConversationByRoomId(roomId, options);
+  res.json({
+    success: true,
+    conversation,
+    users
+  })
+
+
+})
+
+apiRouter.put("/api/user/:roomId/mark-read", isAuthenticated, async (req, res) => {
+  try {
+    const roomId = req.params.roomId;
+    const room = await db.ChatRoom.getChatRoomByRoomId(roomId);
+    if (!room) {
+      return res.status(400).json({
+        success: false,
+        message: "No room exists for this id",F
+      })
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({success: false, error});
+  }
+})
 
 module.exports = apiRouter;
